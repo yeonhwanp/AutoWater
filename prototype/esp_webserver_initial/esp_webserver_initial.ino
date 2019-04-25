@@ -2,7 +2,7 @@
 #include <WiFi.h>
 
 // Replace with your network credentials
-const char* ssid     = "EECS-Lounges";
+const char* ssid     = "MIT";
 const char* password = "";
 
 // Set web server port number to 80
@@ -14,12 +14,17 @@ String header;
 // Auxiliar variables to store the current output state
 String output26State = "off";
 String output27State = "off";
+bool gotTemp = false;
+bool gotHumidity = false;
+String mockTemp = "65";
+String mockHumidity = "100";
 
 // Assign output variables to GPIO pins
 const int output26 = 26;
 const int output27 = 27;
 
 void setup() {
+  srand(time(NULL));
   Serial.begin(115200);
   // Initialize the output variables as outputs
   pinMode(output26, OUTPUT);
@@ -83,6 +88,18 @@ void loop(){
               Serial.println("GPIO 27 off");
               output27State = "off";
               digitalWrite(output27, LOW);
+            } else if (header.indexOf("GET /getTemp") >= 0) {
+              Serial.println("Get Temp");
+              gotTemp = true;
+              mockTemp = 20;
+            } else if (header.indexOf("GET /getHumidity") >= 0) {
+              Serial.println("Get Humidity");
+              gotHumidity = true;
+              mockHumidity = 10;
+            } else if (header.indexOf("GET /updateTemp") >= 0) {
+              mockTemp = rand() % 80;
+            } else if (header.indexOf("GET /updateHumidity") >= 0) {
+              mockHumidity = rand() % 100;
             }
             
             // Display the HTML web page
@@ -98,6 +115,22 @@ void loop(){
             
             // Web Page Heading
             client.println("<body><h1>ESP32 Web Server</h1>");
+
+            if (gotTemp == true) {
+              client.println("<p>TEMPERATURE: " + mockTemp + "</p>");
+              client.println("<p><a href=\"/updateTemp\"><button class=\"button\">Get TEMP</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/getTemp\"><button class=\"button\">Get TEMP</button></a></p>");
+            }
+            client.println("</body></html>");
+
+            if (gotHumidity == true) {
+              client.println("<p>HUMIDITY: " + mockHumidity + "</p>");
+              client.println("<p><a href=\"/updateHumidity\"><button class=\"button\">Get HUMIDITY</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/getHumidity\"><button class=\"button\">Get HUMIDITY</button></a></p>");
+            }
+            client.println("</body></html>");
             
             // Display current state, and ON/OFF buttons for GPIO 26  
             client.println("<p>GPIO 26 - State " + output26State + "</p>");
@@ -117,6 +150,7 @@ void loop(){
               client.println("<p><a href=\"/27/off\"><button class=\"button button2\">OFF</button></a></p>");
             }
             client.println("</body></html>");
+            
             
             // The HTTP response ends with another blank line
             client.println();
