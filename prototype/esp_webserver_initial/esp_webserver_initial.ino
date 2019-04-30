@@ -2,8 +2,8 @@
 #include <WiFi.h>
 
 // Replace with your network credentials
-const char* ssid     = "6s08";
-const char* password = "iesc6s08";
+const char* ssid     = "MIT";
+const char* password = "";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -16,14 +16,17 @@ String output26State = "off";
 String output27State = "off";
 bool gotTemp = false;
 bool gotHumidity = false;
-String mockTemp = "65";
-String mockHumidity = "100";
+bool gotMoist = false;
+String thisTemp = "65";
+String thisHumidity = "100";
+String thisMoisture = "30";
 
 // Assign output variables to GPIO pins
 const int output26 = 26;
 const int output27 = 27;
 
 void setup() {
+  setupSensor();
   srand(time(NULL));
   Serial.begin(115200);
   // Initialize the output variables as outputs
@@ -72,34 +75,24 @@ void loop(){
             client.println();
             
             // turns the GPIOs on and off
-            if (header.indexOf("GET /26/on") >= 0) {
-              Serial.println("GPIO 26 on");
-              output26State = "on";
-              digitalWrite(output26, HIGH);
-            } else if (header.indexOf("GET /26/off") >= 0) {
-              Serial.println("GPIO 26 off");
-              output26State = "off";
-              digitalWrite(output26, LOW);
-            } else if (header.indexOf("GET /27/on") >= 0) {
-              Serial.println("GPIO 27 on");
-              output27State = "on";
-              digitalWrite(output27, HIGH);
-            } else if (header.indexOf("GET /27/off") >= 0) {
-              Serial.println("GPIO 27 off");
-              output27State = "off";
-              digitalWrite(output27, LOW);
-            } else if (header.indexOf("GET /getTemp") >= 0) {
+            if (header.indexOf("GET /getTemp") >= 0) {
               Serial.println("Get Temp");
               gotTemp = true;
-              mockTemp = 20;
+              thisTemp = getTemp();
             } else if (header.indexOf("GET /getHumidity") >= 0) {
               Serial.println("Get Humidity");
               gotHumidity = true;
-              mockHumidity = 10;
+              thisHumidity = getHumidity();
             } else if (header.indexOf("GET /updateTemp") >= 0) {
-              mockTemp = rand() % 80;
+              thisTemp = getTemp();
             } else if (header.indexOf("GET /updateHumidity") >= 0) {
-              mockHumidity = rand() % 100;
+              thisHumidity = getHumidity();
+            } else if (header.indexOf("GET /getMoist") >= 0) {
+              Serial.println("Get Moisture");
+              gotMoist = true;
+              thisMoisture = getMoistPercent();
+            } else if (header.indexOf("GET /updateMoist") >= 0) {
+              thisMoisture = getMoistPercent();
             }
             
             // Display the HTML web page
@@ -117,7 +110,7 @@ void loop(){
             client.println("<body><h1>ESP32 Web Server</h1>");
 
             if (gotTemp == true) {
-              client.println("<p>TEMPERATURE: " + mockTemp + "</p>");
+              client.println("<p>TEMPERATURE: " + thisTemp + "</p>");
               client.println("<p><a href=\"/updateTemp\"><button class=\"button\">Get TEMP</button></a></p>");
             } else {
               client.println("<p><a href=\"/getTemp\"><button class=\"button\">Get TEMP</button></a></p>");
@@ -125,29 +118,18 @@ void loop(){
             client.println("</body></html>");
 
             if (gotHumidity == true) {
-              client.println("<p>HUMIDITY: " + mockHumidity + "</p>");
+              client.println("<p>HUMIDITY: " + thisHumidity + "</p>");
               client.println("<p><a href=\"/updateHumidity\"><button class=\"button\">Get HUMIDITY</button></a></p>");
             } else {
               client.println("<p><a href=\"/getHumidity\"><button class=\"button\">Get HUMIDITY</button></a></p>");
             }
             client.println("</body></html>");
-            
-            // Display current state, and ON/OFF buttons for GPIO 26  
-            client.println("<p>GPIO 26 - State " + output26State + "</p>");
-            // If the output26State is off, it displays the ON button       
-            if (output26State=="off") {
-              client.println("<p><a href=\"/26/on\"><button class=\"button\">ON</button></a></p>");
+
+            if (gotMoist == true) {
+              client.println("<p>Moisture Percentage: " + thisMoisture + "</p>");
+              client.println("<p><a href=\"/updateMoist\"><button class=\"button\">Get MOISTURE</button></a></p>");
             } else {
-              client.println("<p><a href=\"/26/off\"><button class=\"button button2\">OFF</button></a></p>");
-            } 
-               
-            // Display current state, and ON/OFF buttons for GPIO 27  
-            client.println("<p>GPIO 27 - State " + output27State + "</p>");
-            // If the output27State is off, it displays the ON button       
-            if (output27State=="off") {
-              client.println("<p><a href=\"/27/on\"><button class=\"button\">ON</button></a></p>");
-            } else {
-              client.println("<p><a href=\"/27/off\"><button class=\"button button2\">OFF</button></a></p>");
+              client.println("<p><a href=\"/getMoist\"><button class=\"button\">Get MOISTURE</button></a></p>");
             }
             client.println("</body></html>");
             
