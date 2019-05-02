@@ -1,9 +1,18 @@
 // Load Wi-Fi library
 #include <WiFi.h>
+#include <Servo.h>
 
 // Replace with your network credentials
-const char* ssid     = "EECS-Lounges";
-const char* password = "";
+const char* ssid     = "6s08";
+const char* password = "iesc6s08";
+
+//Set up water pump
+Servo water_pump;
+
+const int WATERPIN = 12;
+
+const int pump = 2000;
+const int off = 1500;
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -21,6 +30,10 @@ const int output27 = 27;
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(WATERPIN, OUTPUT);
+  water_pump.attach(WATERPIN);
+  
   // Initialize the output variables as outputs
   pinMode(output26, OUTPUT);
   pinMode(output27, OUTPUT);
@@ -67,22 +80,26 @@ void loop(){
             client.println();
             
             // turns the GPIOs on and off
-            if (header.indexOf("GET /26/on") >= 0) {
+            if (header.indexOf("POST /26/on") >= 0) {
               Serial.println("GPIO 26 on");
               output26State = "on";
               digitalWrite(output26, HIGH);
-            } else if (header.indexOf("GET /26/off") >= 0) {
+            } else if (header.indexOf("POST /26/off") >= 0) {
               Serial.println("GPIO 26 off");
               output26State = "off";
               digitalWrite(output26, LOW);
-            } else if (header.indexOf("GET /27/on") >= 0) {
+            } else if (header.indexOf("POST /27/on") >= 0) {
               Serial.println("GPIO 27 on");
               output27State = "on";
               digitalWrite(output27, HIGH);
-            } else if (header.indexOf("GET /27/off") >= 0) {
+            } else if (header.indexOf("POST /27/off") >= 0) {
               Serial.println("GPIO 27 off");
               output27State = "off";
               digitalWrite(output27, LOW);
+            } else if (header.indexOf("POST /pump/on") >= 0) {
+              water_pump.writeMicroseconds(pump);
+            } else if (header.indexOf("POST /pump/off") >= 0) {
+              water_pump.writeMicroseconds(off);
             }
             
             // Display the HTML web page
