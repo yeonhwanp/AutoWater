@@ -5,6 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 schedule_db = "schedule.db" # DB that holds the strings for the schedule
+sensors_db = "sensors.db" # DB that holds the readings from the sensors
  
 def seconds_since_midnight():
     now = datetime.now()
@@ -24,6 +25,12 @@ def create_database():
     conn.commit()
     conn.close()
 
+    # Create the sensor readings database
+    conn = sqlite3.connect(sensors_db)
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS readings (temperature real, humidity real, moisture real, time timestamp)""")
+    conn.commit()
+    conn.close()
 
 @app.route("/")
 def home():
@@ -102,8 +109,36 @@ def update_lamp_schedule():
 
 @app.route("/sensors/update", methods=["POST"])
 def update_sensor_readings():
-    pass
+    try:
+        temperature = float(request.form.get("temp"))
+        humidity = float(request.form.get("humidity"))
+        moisture = float(request.form.get("moisture"))
+    except:
+        return "You need to supply temp, humidity, and moisture."
+    
+    conn = sqlite3.connect(sensors_db)
+    c = conn.cursor()
+    c.execute("""INSERT INTO readings VALUES (?, ?, ?, ?)""",
+        (temperature, humidity, moisture, datetime.now()))
+    conn.commit()
+    conn.close()
+    return "Saved readings: [temp={}, humid={}, moist={}]".format(
+        temperature, humidity, moisture)
+
+@app.route("/sensors")
+def get_sensor_readings():
+    conn = sqlite3.connect(sensors_db)
+    c = conn.cursor()
+    readings = c.execute("""SELECT * FROM readings ORDER BY time DESC""").fetchall()
+    conn.close()
+    output = ""
+    for reading in readings:
+        temp, humid, moist = map(str, reading)
+        output += ",".join(map(str, reading))
+        output += "\r\n"
+    
+    return output
 
 if __name__ == "__main__":
-    create_database()  #call the function!
+    create_database()  # create the databases if necessary
     app.run(host="0.0.0.0", port=80, debug=True)
