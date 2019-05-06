@@ -3,19 +3,21 @@
 #include <Arduino.h>
 
 WaterPump::WaterPump(int pin) {
-    PUMP_PIN = pin;
-    pinMode(PUMP_PIN, OUTPUT);
-    _pump.attach(PUMP_PIN);
+  PUMP_PIN = pin;
+  pinMode(PUMP_PIN, OUTPUT);
+  _pump.attach(PUMP_PIN);
 }
 
 bool WaterPump::getState() {
-    return IS_PUMP_ON;
+  return IS_PUMP_ON;
 }
 
 void WaterPump::pumpOn() {
-    _pump.writeMicroseconds(ON);
+  IS_PUMP_ON = true;
+  _pump.writeMicroseconds(ON);
 }
 
 void WaterPump::pumpOff() {
-    _pump.writeMicroseconds(OFF);
+  IS_PUMP_ON = false;
+  _pump.writeMicroseconds(OFF);
 }

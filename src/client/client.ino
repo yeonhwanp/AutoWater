@@ -6,6 +6,7 @@
 #include <ESP32WebServer.h>
 #include "camera.h"
 #include "pump.h"
+#include "relay.h"
 
 // Set up the display!
 TFT_eSPI tft = TFT_eSPI();
@@ -15,6 +16,9 @@ const int SCREEN_WIDTH = 128;
 unsigned long primary_timer;
 const int LOOP_PERIOD = 50;
 
+unsigned long effector_update_timer;
+const int EFFECTOR_UPDATE_PERIOD = 5000; // 5000ms
+
 // Setup Camera
 Camera cam;
 
@@ -22,23 +26,87 @@ Camera cam;
 const int WATERPUMP_PIN = 12;
 WaterPump pump(WATERPUMP_PIN);
 
+// Setup Bulb
+const int BULB_PIN = 14;
+Bulb bulb(BULB_PIN);
+
 // Setup WIFI and Server
 const char *network = "MIT";
 const char *password = "";
 
+// Setup AP
+const char *AP_ssid = "608FinalProject";
+const char *AP_password = "ihatefinalprojects";
+
+// Setup Raspberry Pi
+char *RPI_HOST = "192.168.4.2";
+
 ESP32WebServer server(80);
+
+// Setup requests
+// Some constants and some resources:
+const int RESPONSE_TIMEOUT = 6000;        // ms to wait for response from host
+const uint16_t OUT_BUFFER_SIZE = 1000;    // size of buffer to hold HTTP response
+char response[OUT_BUFFER_SIZE];           // char array buffer to hold HTTP request
+
+// Camera constants
+static const size_t bufferSize = 2048;
+static uint8_t buffer[bufferSize] = {0xFF};
+uint8_t temp = 0, temp_last = 0;
+int i = 0;
+bool is_header = false;
+
+void setLampDesiredState() {
+  char request_buffer[200];
+  sprintf(request_buffer, "GET /schedule/lamp HTTP/1.1\r\n");
+  strcat(request_buffer, "Host: ");
+  strcat(request_buffer, RPI_HOST);
+  strcat(request_buffer, "\r\n");
+  strcat(request_buffer, "\r\n");
+  do_http_request(RPI_HOST, request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+
+  if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
+    bulb.bulbOn();    
+  } else if (strstr(response, "FALSE") != NULL && strstr(response, "TRUE") == NULL) {
+    bulb.bulbOff();
+  }
+}
+
+void setPumpDesiredState() {
+  char request_buffer[200];
+  sprintf(request_buffer, "GET /schedule/pump HTTP/1.1\r\n");
+  strcat(request_buffer, "Host: ");
+  strcat(request_buffer, RPI_HOST);
+  strcat(request_buffer, "\r\n");
+  strcat(request_buffer, "\r\n");
+  do_http_request(RPI_HOST, request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+
+  if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
+    pump.pumpOn();    
+  } else if (strstr(response, "FALSE") != NULL && strstr(response, "TRUE") == NULL) {
+    pump.pumpOff();
+  }
+}
 
 void loop() {
   // display IP address
   tft.setCursor(0, 0);
   tft.print("IP: ");
-  tft.println(WiFi.localIP());
+//  tft.println(WiFi.localIP());
+  tft.println(WiFi.softAPIP());
 
   tft.print("Pump status:");
-  if (pump.getStatus()) {
-    tft.println("ON");
+  if (pump.getState()) {
+    tft.println("ON ");
   } else {
     tft.println("OFF");
+  }
+
+  // Determine if pump should be on
+  if (millis() - effector_update_timer > EFFECTOR_UPDATE_PERIOD) {
+    setPumpDesiredState();
+    setLampDesiredState();
+    effector_update_timer = millis();
   }
 
   // Handle requests
@@ -73,95 +141,45 @@ void handleNotFound()
 
 void handlePumpOn() {
   pump.pumpOn();
+  server.send(200, "text/plain", "PUMP ON");
   Serial.println("Pump ON");
 }
 
 void handlePumpOff() {
   pump.pumpOff();
+  server.send(200, "text/plain", "PUMP OFF");
   Serial.println("Pump OFF");
+}
+
+void handleBulbOn() {
+  bulb.bulbOn();
+  server.send(200, "text/plain", "BULB ON");
+  Serial.println("Bulb ON");
+}
+
+void handleBulbOff() {
+  bulb.bulbOff();
+  server.send(200, "text/plain", "BULB OFF");
+  Serial.println("Bulb OFF");
 }
 
 void handleGetStatus() {
   String message = "STATUS REPORT\n\n";
   message += "PUMP: ";
-  message += (pump.getStatus()?) "ON":"OFF";
+  message += pump.getState() ? "ON":"OFF";
+  message += "\n";
+  message += "LAMP: ";
+  message += bulb.bulbState();
   message += "\n";
   server.send(200, "text/plain", message);
 }
 
-void serverStream() {
-  WiFiClient client = server.client();
-
-  String response = "HTTP/1.1 200 OK\r\n";
-  response += "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n\r\n";
-  server.sendContent(response);
-
-  while (1) {
-    start_capture();
-    while (!cam.myCAM.get_bit(ARDUCHIP_TRIG, CAP_DONE_MASK));
-    size_t len = cam.myCAM.read_fifo_length();
-    if (len >= MAX_FIFO_SIZE) //8M
-    {
-      Serial.println("Over size.");
-      continue;
-    }
-    if (len == 0 ) //0 kb
-    {
-      Serial.println("Size is 0.");
-      continue;
-    }
-    cam.myCAM.CS_LOW();
-    cam.myCAM.set_fifo_burst();
-    if (!client.connected()) break;
-    response = "--frame\r\n";
-    response += "Content-Type: image/jpeg\r\n\r\n";
-    server.sendContent(response);
-    while ( len-- )
-    {
-      temp_last = temp;
-      temp =  SPI.transfer(0x00);
-
-      //Read JPEG data from FIFO
-      if ( (temp == 0xD9) && (temp_last == 0xFF) ) //If find the end ,break while,
-      {
-        buffer[i++] = temp;  //save the last  0XD9
-        //Write the remain bytes in the buffer
-        cam.myCAM.CS_HIGH();;
-        if (!client.connected()) break;
-        client.write(&buffer[0], i);
-        is_header = false;
-        i = 0;
-      }
-      if (is_header == true)
-      {
-        //Write image data to buffer if not full
-        if (i < bufferSize)
-          buffer[i++] = temp;
-        else
-        {
-          //Write bufferSize bytes image data to file
-          cam.myCAM.CS_HIGH();
-          if (!client.connected()) break;
-          client.write(&buffer[0], bufferSize);
-          i = 0;
-          buffer[i++] = temp;
-          cam.myCAM.CS_LOW();
-          cam.myCAM.set_fifo_burst();
-        }
-      }
-      else if ((temp == 0xD8) & (temp_last == 0xFF))
-      {
-        is_header = true;
-        buffer[i++] = temp_last;
-        buffer[i++] = temp;
-      }
-    }
-    if (!client.connected()) break;
-  }
-}
-
-
 // --- SETUP ROUTINES ---
+void setupAP() {
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(AP_ssid, AP_password);
+  Serial.println(WiFi.softAPIP());
+}
 
 void setupWifi() {
   WiFi.mode(WIFI_STA);
@@ -197,16 +215,18 @@ void setup() {
   tft.setRotation(2);
   tft.setTextSize(1);
   tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_RED, TFT_BLACK); //set color of font to green foreground, black background
-
-  cam.setupCamera();
+  tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
 
   // SETUP WIFI
-  setupWifi();
+//  setupWifi();
+  setupAP();
 
   // SETUP SERVER
-  server.on("/pump/on", HTTP_POST, handlePumpOn);
-  server.on("/pump/off", HTTP_POST, handlePumpOff);
+  server.on("/pump/on", HTTP_GET, handlePumpOn);
+  server.on("/pump/off", HTTP_GET, handlePumpOff);
+  server.on("/bulb/on", HTTP_GET, handleBulbOn);
+  server.on("/bulb/off", HTTP_GET, handleBulbOff);
+  server.on("/status", HTTP_GET, handleGetStatus);
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("Server started.");
