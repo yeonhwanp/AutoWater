@@ -1,3 +1,12 @@
+#include "requests.h"
+
+#include <WiFi.h>
+
+// Some constants and some resources:
+const int RESPONSE_TIMEOUT = 6000;        // ms to wait for response from host
+const uint16_t OUT_BUFFER_SIZE = 1000;    // size of buffer to hold HTTP response
+char response[OUT_BUFFER_SIZE];           // char array buffer to hold HTTP request
+
 /*----------------------------------
   char_append Function:
   Arguments:

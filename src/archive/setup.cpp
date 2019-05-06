@@ -1,10 +1,12 @@
+#include "setup.h"
+#include "camera.h"
 #include <WiFi.h> //Connect to WiFi Network
 
-void setupWiFi() {
-  // Set up WiFi
-  char network[] = "6s08";                  // SSID for 6.08 Lab
-  char password[] = "iesc6s08";             // Password for 6.08 Lab
+const char *network = "MIT";
+const char *password = "";
 
+void setupWiFi() {
+  WiFi.mode(WIFI_STA);
   WiFi.begin(network, password); //attempt to connect to wifi
   uint8_t count = 0; //count used for Wifi check times
   Serial.print("Attempting to connect to ");
@@ -25,4 +27,15 @@ void setupWiFi() {
     Serial.println(WiFi.status());
     ESP.restart(); // restart the ESP (proper way)
   }
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void setupServer() {
+  // Start the server
+//  server.on("/capture", HTTP_GET, serverCapture);
+//  server.on("/stream", HTTP_GET, serverStream);
+  server.onNotFound(handleNotFound);
+  server.begin();
+  Serial.println("Server started");
 }
