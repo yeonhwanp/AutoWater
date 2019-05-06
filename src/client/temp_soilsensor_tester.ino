@@ -69,6 +69,8 @@ int getMoistPercent() {
 
 float getTemp() {
   updateSensors();
+  Serial.println("!!!!!!!");
+  Serial.println(temperature);
   return temperature;
 }
 

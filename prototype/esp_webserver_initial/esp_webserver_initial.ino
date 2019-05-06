@@ -3,8 +3,8 @@
 #include <Servo.h>
 
 // Replace with your network credentials
-const char* ssid     = "6s08";
-const char* password = "iesc6s08";
+const char* ssid     = "MIT";
+const char* password = "";
 
 //Set up water pump
 Servo water_pump;

@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 schedule_db = "schedule.db" # DB that holds the strings for the schedule
 sensors_db = "sensors.db" # DB that holds the readings from the sensors
- 
+
 def seconds_since_midnight():
     now = datetime.now()
     seconds_since = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
@@ -46,9 +46,9 @@ def should_pump_be_on():
         schedule = schedules[0][0]
     else:
         return "FALSE"
-    
+
     print("PUMP schedule:", schedule)
-    
+
     cur_seconds = seconds_since_midnight()
     for segment in schedule.split(","):
         start, end = map(int, segment.split(":"))
@@ -66,9 +66,9 @@ def should_lamp_be_on():
         schedule = schedules[0][0]
     else:
         return "FALSE"
-    
+
     print("LAMP schedule:", schedule)
-    
+
     cur_seconds = seconds_since_midnight()
     for segment in schedule.split(","):
         start, end = map(int, segment.split(":"))
@@ -115,7 +115,7 @@ def update_sensor_readings():
         moisture = float(request.form.get("moisture"))
     except:
         return "You need to supply temp, humidity, and moisture."
-    
+
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
     c.execute("""INSERT INTO readings VALUES (?, ?, ?, ?)""",
@@ -133,10 +133,10 @@ def get_sensor_readings():
     conn.close()
     output = ""
     for reading in readings:
-        temp, humid, moist = map(str, reading)
+        # temp, humid, moist = map(str, reading)
         output += ",".join(map(str, reading))
         output += "\r\n"
-    
+
     return output
 
 if __name__ == "__main__":
