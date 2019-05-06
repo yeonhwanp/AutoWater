@@ -133,7 +133,7 @@ def get_sensor_readings():
     conn.close()
     output = ""
     for reading in readings:
-        temp, humid, moist = map(str, reading)
+        # temp, humid, moist = map(str, reading)
         output += ",".join(map(str, reading))
         output += "\r\n"
     
