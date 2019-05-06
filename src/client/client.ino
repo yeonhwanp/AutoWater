@@ -17,7 +17,9 @@ unsigned long primary_timer;
 const int LOOP_PERIOD = 50;
 
 unsigned long effector_update_timer;
+unsigned long sensor_reading_timer;
 const int EFFECTOR_UPDATE_PERIOD = 5000; // 5000ms
+const int SENSOR_UPDATE_PERIOD = 5000;
 
 // Setup Camera
 Camera cam;
@@ -88,6 +90,20 @@ void setPumpDesiredState() {
   }
 }
 
+void setReadings(int moist, float temp, float humidity) {
+  
+  char readings[200];
+  sprintf(readings, "moisture=%i&temp=%f&humidity=%f", moist, temp, humidity); //I need to be changed.
+  char request[500];
+  sprintf(request,"POST /sensors/update HTTP/1.1\r\n");
+  sprintf(request+strlen(request),"Host: %s\r\n",RPI_HOST);
+  strcat(request,"Content-Type: application/x-www-form-urlencoded\r\n");
+  sprintf(request+strlen(request),"Content-Length: %d\r\n\r\n",strlen(readings));
+  strcat(request,readings);
+  do_http_request(RPI_HOST,request,response,OUT_BUFFER_SIZE, RESPONSE_TIMEOUT,true);
+  
+}
+
 void loop() {
   // display IP address
   tft.setCursor(0, 0);
@@ -108,6 +124,15 @@ void loop() {
     setLampDesiredState();
     effector_update_timer = millis();
   }
+
+  if (millis() - sensor_reading_timer > SENSOR_UPDATE_PERIOD) {
+    int moistPercent = getMoistPercent();
+    float temp = getTemp();
+    float humidity = getHumidity();
+    setReadings(moistPercent, temp, humidity);
+    sensor_reading_timer = millis();
+  }
+  
 
   // Handle requests
   server.handleClient();
@@ -220,6 +245,7 @@ void setup() {
   // SETUP WIFI
 //  setupWifi();
   setupAP();
+  setupSensor();
 
   // SETUP SERVER
   server.on("/pump/on", HTTP_GET, handlePumpOn);
