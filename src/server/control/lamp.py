@@ -12,6 +12,14 @@ schedule_db = "__HOME__/schedule.db"
 def request_handler(request):
     conn = sqlite3.connect(schedule_db)
     c = conn.cursor()
+    override = c.execute("""SELECT * FROM lamp_override ORDER BY update_time DESC LIMIT 1""").fetchall()
+    if len(override) != 0:
+        on, off, _ = override[0]
+        if on and not off:
+            return "TRUE"
+        if off and not on:
+            return "FALSE"
+
     schedules = c.execute("""SELECT * FROM lamp_schedule ORDER BY update_time DESC LIMIT 1""").fetchall()
     if len(schedules) != 0:
         schedule = schedules[0][0]

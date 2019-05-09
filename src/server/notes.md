@@ -14,8 +14,8 @@
   * `lamp.py` - the intended state of the lamp (done)
   * `pump.py` - the intended state of the pump (done)
   * override
-    * `lamp.py` - set the override status for the lamp
-    * `pump.py` - set the override status for the pump
+    * `lamp.py` - set the override status for the lamp (done)
+    * `pump.py` - set the override status for the pump (done)
 * sensors
   * `read.py` - get the latest reading of the sensors (done)
   * `update.py` - update the readings of the sensors (done)

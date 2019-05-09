@@ -1,4 +1,5 @@
 import sqlite3 
+from datetime import datetime
 schedule_db = "__HOME__/schedule.db" # DB that holds the strings for the schedule
 sensors_db = "__HOME__/sensors.db" # DB that holds the readings from the sensors
 
