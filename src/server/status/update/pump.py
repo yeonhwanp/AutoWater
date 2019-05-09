@@ -6,6 +6,9 @@ sys.path.append("__HOME__/finalproject/server")
 schedule_db = "__HOME__/schedule.db"
 
 def request_handler(request):
+    if request["method"] != "POST":
+        return "You must use a POST request."
+
     try:
         status = request["form"]["status"] == "ON"
     except:
