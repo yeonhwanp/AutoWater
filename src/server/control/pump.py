@@ -4,6 +4,7 @@
 import sys
 import sqlite3
 from datetime import datetime
+import json
 sys.path.append("__HOME__/finalproject/server")
 from utils import seconds_since_midnight
 
@@ -16,20 +17,20 @@ def request_handler(request):
     if len(override) != 0:
         on, off, _ = override[0]
         if on and not off:
-            return "TRUE"
+            return json.dumps({"intent": "TRUE"})
         if off and not on:
-            return "FALSE"
+            return json.dumps({"intent": "FALSE"})
 
     schedules = c.execute("""SELECT * FROM pump_schedule ORDER BY update_time DESC LIMIT 1""").fetchall()
     if len(schedules) != 0:
         schedule = schedules[0][0]
     else:
-        return "FALSE"
+        return json.dumps({"intent": "FALSE"})
 
     cur_seconds = seconds_since_midnight()
     for segment in schedule.split(","):
         start, end = map(int, segment.split(":"))
         if start <= cur_seconds <= end:
-            return "TRUE"
+            return json.dumps({"intent": "TRUE"})
 
-    return "FALSE"
+    return json.dumps({"intent": "FALSE"})

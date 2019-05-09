@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -24,23 +24,84 @@
         <h3>Sensor Readings</h3>
         <table class="table">
           <tr>
-            <td>Temperature</td>
+            <th>Temperature</th>
             <td id="temperature-reading"></td>
           </tr>
           <tr>
-            <td>Humidity</td>
+            <th>Humidity</th>
             <td id="humidity-reading"></td>
           </tr>
           <tr>
-            <td>Soil Moisture</td>
+            <th>Soil Moisture</th>
             <td id="moisture-reading"></td>
           </tr>
         </table>
       </div>
       <div class="col-sm-6">
+        <h3>Status</h3>
+        <table class="table">
+          <tr>
+            <th>Pump</th>
+            <td id="pump-status"></td>
+          </tr>
+          <tr>
+            <th>Lamp</th>
+            <td id="lamp-status"></td>
+          </tr>
+        </table>
+
+        <h3>Intended Status</h3>
+        <table class="table">
+          <tr>
+            <th>Pump</th>
+            <td id="pump-intent"></td>
+          </tr>
+          <tr>
+            <th>Lamp</th>
+            <td id="lamp-intent"></td>
+          </tr>
+        </table>
+
         <h3>Controls</h3>
-        <button type="button" class="btn btn-primary">Pump: </button>
-        <button type="button" class="btn btn-primary">Light: </button>
+        <table class="table">
+          <tr>
+            <th>Pump Override</th>
+            <td>
+              <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label id="pump-off-btn" class="btn btn-secondary active">
+                  <input type="radio" name="options" id="pump-off" autocomplete="off" checked> Off
+                </label>
+                <label id="pump-on-btn" class="btn btn-secondary">
+                  <input type="radio" name="options" id="pump-on" autocomplete="off"> On
+                </label>
+                <label id="pump-none-btn" class="btn btn-secondary">
+                  <input type="radio" name="options" id="pump-none" autocomplete="off"> None
+                </label>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <th>Lamp Override</th>
+            <td>
+              <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label id="lamp-off-btn" class="btn btn-secondary active">
+                  <input type="radio" name="options" id="lamp-off" autocomplete="off" checked> Off
+                </label>
+                <label id="lamp-on-btn" class="btn btn-secondary">
+                  <input type="radio" name="options" id="lamp-on" autocomplete="off"> On
+                </label>
+                <label id="lamp-none-btn" class="btn btn-secondary">
+                  <input type="radio" name="options" id="lamp-none" autocomplete="off"> None
+                </label>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+
+          </tr>
+        </table>
       </div>
     </div>
   </div>

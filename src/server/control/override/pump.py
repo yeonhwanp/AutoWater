@@ -24,4 +24,4 @@ def request_handler(request):
     conn.commit()
     conn.close()
 
-    return override
+    return "Override state updated: {}".format(str(override))

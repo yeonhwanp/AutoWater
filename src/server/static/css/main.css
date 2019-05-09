@@ -11,3 +11,12 @@ html {
 p {
     font-size: 32pt;
 }
+
+td,
+th {
+    vertical-align: middle !important;
+}
+
+td {
+    text-align: right !important;
+}
