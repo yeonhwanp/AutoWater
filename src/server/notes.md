@@ -17,6 +17,6 @@
     * `lamp.py` - set the override status for the lamp
     * `pump.py` - set the override status for the pump
 * sensors
-  * `read.py` - get the latest reading of the sensors
-  * `update.py` - update the readings of the sensors
+  * `read.py` - get the latest reading of the sensors (done)
+  * `update.py` - update the readings of the sensors (done)
 * `utils.py` - used to create the databases if they don't exist
