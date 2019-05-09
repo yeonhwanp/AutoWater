@@ -50,10 +50,10 @@ int wifiType = 1; // 0:Station  1:AP
 //Default is arducam_esp8266.If you want,you can change the AP_aaid  to your favorite name
 const char *AP_ssid = "arducam_esp32";
 //Default is no password.If you want to set password,put your password here
-const char *AP_password = NULL;
+const char *AP_password = "ihatefinalprojects";
 
 //Station mode you should put your ssid and password
-const char *ssid = "MIT"; // Put your SSID here
+const char *ssid = "EECS-Lounges"; // Put your SSID here
 const char *password = ""; // Put your PASSWORD here
 
 static const size_t bufferSize = 2048;
@@ -97,7 +97,7 @@ void camCapture(ArduCAM myCAM) {
   {
     temp_last = temp;
     temp =  SPI.transfer(0x00);
-    Serial.println(temp);
+//    Serial.println(temp);
     //Read JPEG data from FIFO
     if ( (temp == 0xD9) && (temp_last == 0xFF) ) //If find the end ,break while,
     {
@@ -227,6 +227,7 @@ void serverStream() {
     if (!client.connected()) break;
   }
 }
+
 void handleNotFound() {
   String message = "Server is running!\n\n";
   message += "URI: ";
@@ -254,6 +255,7 @@ void handleNotFound() {
     Serial.println("QL change to: " + server.arg("ql"));
   }
 }
+
 void setup() {
   uint8_t vid, pid;
   uint8_t temp;
@@ -262,6 +264,7 @@ void setup() {
   pinMode(CAM_POWER_ON , OUTPUT);
   digitalWrite(CAM_POWER_ON, HIGH);
 #if defined(__SAM3X8E__)
+  Serial.println("wire1");
   Wire1.begin();
 #else
   Wire.begin();
@@ -380,6 +383,7 @@ void setup() {
   server.begin();
   Serial.println(F("Server started"));
 }
+
 void loop() {
   server.handleClient();
 }
