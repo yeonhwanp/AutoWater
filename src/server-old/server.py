@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import sqlite3
+import json
 from datetime import datetime
 
 app = Flask(__name__)
@@ -129,15 +130,15 @@ def update_sensor_readings():
 def get_sensor_readings():
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
-    readings = c.execute("""SELECT * FROM readings ORDER BY time DESC""").fetchall()
+    readings = c.execute("""SELECT * FROM readings ORDER BY time DESC LIMIT 1""").fetchall()
     conn.close()
-    output = ""
-    for reading in readings:
-        # temp, humid, moist = map(str, reading)
-        output += ",".join(map(str, reading))
-        output += "\r\n"
 
-    return output
+    output = {
+        "temp": str(readings[0][0]),
+        "humid": str(readings[0][1]),
+        "moist": str(readings[0][2])
+    }
+    return json.dumps(output)
 
 if __name__ == "__main__":
     create_database()  # create the databases if necessary

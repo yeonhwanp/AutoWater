@@ -1,0 +1,36 @@
+import sqlite3 
+schedule_db = "__HOME__/schedule.db" # DB that holds the strings for the schedule
+sensors_db = "__HOME__/sensors.db" # DB that holds the readings from the sensors
+
+def create_databases():
+    """
+    Creates the schedule and sensor readings databases.
+    """
+    # connect to that database (will create if it doesn't already exist)
+    print(schedule_db)
+    conn = sqlite3.connect(schedule_db)
+    c = conn.cursor()
+    # pump_schedule: schedule text, update_time (to get the most recent schedule)
+    c.execute("""CREATE TABLE IF NOT EXISTS pump_schedule (schedule text, update_time timestamp);""")
+    c.execute("""CREATE TABLE IF NOT EXISTS lamp_schedule (schedule text, update_time timestamp);""")
+    c.execute("""CREATE TABLE IF NOT EXISTS overrides (light_on boolean, light_off boolean, pump_on boolean, pump_off boolean, update_time timestamp);""")
+    c.execute("""CREATE TABLE IF NOT EXISTS status (pump boolean, light boolean, update_time timestamp);""")
+    conn.commit()
+    conn.close()
+
+    # Create the sensor readings database
+    conn = sqlite3.connect(sensors_db)
+    print("hi2")
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS readings (temperature real, humidity real, moisture real, time timestamp)""")
+    conn.commit()
+    conn.close()
+
+def seconds_since_midnight():
+    now = datetime.now()
+    seconds_since = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    return seconds_since
+
+def request_handler(request):
+    create_databases()
+    return "OK"

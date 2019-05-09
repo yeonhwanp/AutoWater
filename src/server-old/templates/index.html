@@ -1,0 +1,47 @@
+<html>
+
+<head>
+  <script type=text/javascript src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+  <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <title>
+    6.08 Final Project: Team 37
+  </title>
+</head>
+
+<body>
+  <div class="jumbotron text-center">
+    <h1>6.08 Final Project</h1>
+    <h2>Team 37</h2>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <h3>Sensor Readings</h3>
+        <table class="table">
+          <tr>
+            <td>Temperature</td>
+            <td id="temperature-reading"></td>
+          </tr>
+          <tr>
+            <td>Humidity</td>
+            <td id="humidity-reading"></td>
+          </tr>
+          <tr>
+            <td>Soil Moisture</td>
+            <td id="moisture-reading"></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-sm-6">
+        <h3>Controls</h3>
+        <button type="button" class="btn btn-primary">Pump: </button>
+        <button type="button" class="btn btn-primary">Light: </button>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
