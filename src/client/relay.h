@@ -8,7 +8,7 @@ private:
 
 public:
   Bulb(int pin);
-  bool bulbState();
+  bool getState();
   void bulbOn();
   void bulbOff();
 };

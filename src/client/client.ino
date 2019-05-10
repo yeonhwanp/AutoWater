@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include <WiFi.h>
-#include <ESP32WebServer.h>
 #include "camera.h"
 #include "pump.h"
 #include "relay.h"
@@ -20,8 +19,8 @@ const int LOOP_PERIOD = 50;
 unsigned long effector_update_timer;
 unsigned long sensor_reading_timer;
 unsigned long display_timer;
-const int EFFECTOR_UPDATE_PERIOD = 5000; // 5000ms
-const int SENSOR_UPDATE_PERIOD = 5000;
+const int EFFECTOR_UPDATE_PERIOD = 1000; // 1000ms
+const int SENSOR_UPDATE_PERIOD = 1000;
 const int DISPLAY_TIME = 10000;
 
 // Setup Camera
@@ -35,18 +34,9 @@ WaterPump pump(WATERPUMP_PIN);
 const int BULB_PIN = 14;
 Bulb bulb(BULB_PIN);
 
-// Setup WIFI and Server
-const char *network = "MIT";
-const char *password = "";
-
-// Setup AP
-const char *AP_ssid = "608FinalProject";
-const char *AP_password = "ihatefinalprojects";
-
-// Setup Raspberry Pi
-char *RPI_HOST = "192.168.4.2";
-
-ESP32WebServer server(80);
+// Setup WIFI
+const char *network = "6s08";
+const char *password = "iesc6s08";
 
 // Setup requests
 // Some constants and some resources:
@@ -62,16 +52,15 @@ int i = 0;
 bool is_header = false;
 
 const int BUTTON_PIN = 5;
-Button button(BUTTON_PIN); //button object!
+Button button(BUTTON_PIN);                // for controlling the screen
 
 void setLampDesiredState() {
   char request_buffer[200];
-  sprintf(request_buffer, "GET /schedule/lamp HTTP/1.1\r\n");
-  strcat(request_buffer, "Host: ");
-  strcat(request_buffer, RPI_HOST);
+  sprintf(request_buffer, "GET /sandbox/sc/mattfeng/finalproject/server/control/lamp.py HTTP/1.1\r\n");
+  strcat(request_buffer, "Host: 608dev.net");
   strcat(request_buffer, "\r\n");
   strcat(request_buffer, "\r\n");
-  do_http_request(RPI_HOST, request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  do_http_request("608dev.net", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 
   if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
     bulb.bulbOn();    
@@ -82,12 +71,11 @@ void setLampDesiredState() {
 
 void setPumpDesiredState() {
   char request_buffer[200];
-  sprintf(request_buffer, "GET /schedule/pump HTTP/1.1\r\n");
-  strcat(request_buffer, "Host: ");
-  strcat(request_buffer, RPI_HOST);
+  sprintf(request_buffer, "GET /sandbox/sc/mattfeng/finalproject/server/control/pump.py HTTP/1.1\r\n");
+  strcat(request_buffer, "Host: 608dev.net");
   strcat(request_buffer, "\r\n");
   strcat(request_buffer, "\r\n");
-  do_http_request(RPI_HOST, request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+  do_http_request("608dev.net", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 
   if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
     pump.pumpOn();    
@@ -97,25 +85,34 @@ void setPumpDesiredState() {
 }
 
 void setReadings(int moist, float temp, float humidity) {
-  
   char readings[200];
-  sprintf(readings, "moisture=%i&temp=%f&humidity=%f", moist, temp, humidity); //I need to be changed.
+  sprintf(readings, "moisture=%i&temp=%f&humidity=%f", moist, temp, humidity);
   char request[500];
-  sprintf(request,"POST /sensors/update HTTP/1.1\r\n");
-  sprintf(request+strlen(request),"Host: %s\r\n",RPI_HOST);
+  sprintf(request,"POST /sandbox/sc/mattfeng/finalproject/server/sensors/update.py HTTP/1.1\r\n");
+  sprintf(request + strlen(request),"Host: 608dev.net\r\n");
   strcat(request,"Content-Type: application/x-www-form-urlencoded\r\n");
-  sprintf(request+strlen(request),"Content-Length: %d\r\n\r\n",strlen(readings));
-  strcat(request,readings);
-  do_http_request(RPI_HOST,request,response,OUT_BUFFER_SIZE, RESPONSE_TIMEOUT,true);
-  
+  sprintf(request + strlen(request),"Content-Length: %d\r\n\r\n", strlen(readings));
+  strcat(request, readings);
+  do_http_request("608dev.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+}
+
+void setCurrentStatus(bool pump, bool lamp) {
+  char state[200];
+  sprintf(state, "pump_status=%s&lamp_status=%s", pump ? "ON" : "OFF", lamp ? "ON" : "OFF");
+  char request[500];
+  sprintf(request,"POST /sandbox/sc/mattfeng/finalproject/server/status/update.py HTTP/1.1\r\n");
+  sprintf(request + strlen(request),"Host: 608dev.net\r\n");
+  strcat(request,"Content-Type: application/x-www-form-urlencoded\r\n");
+  sprintf(request + strlen(request),"Content-Length: %d\r\n\r\n", strlen(state));
+  strcat(request, state);
+  do_http_request("608dev.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 }
 
 void loop() {
   // display IP address
   tft.setCursor(0, 0);
   tft.print("IP: ");
-//  tft.println(WiFi.localIP());
-  tft.println(WiFi.softAPIP());
+  tft.println(WiFi.localIP());
 
   tft.print("Pump status:");
   if (pump.getState()) {
@@ -128,6 +125,7 @@ void loop() {
   if (millis() - effector_update_timer > EFFECTOR_UPDATE_PERIOD) {
     setPumpDesiredState();
     setLampDesiredState();
+    setCurrentStatus(pump.getState(), bulb.getState());
     effector_update_timer = millis();
   }
 
@@ -139,10 +137,6 @@ void loop() {
     sensor_reading_timer = millis();
   }
   
-
-  // Handle requests
-  server.handleClient();
-
   // Consistent ticks
   while (millis() - primary_timer < LOOP_PERIOD); 
   primary_timer = millis();
@@ -155,74 +149,12 @@ void loop() {
   // keep display on
   if (millis() - display_timer > DISPLAY_TIME) {
     tft.println("on");
-  }else {
+  } else {
     tft.println("off");
   }
 }
 
-// --- SERVER FUNCTIONS ---
-void handleNotFound()
-{
-    String message = "Server is running!\n\n";
-    message += "URI: ";
-    message += server.uri();
-    message += "\nMethod: ";
-    message += (server.method() == HTTP_GET) ? "GET" : "POST";
-    message += "\nArguments: ";
-    message += server.args();
-    message += "\n";
-    server.send(200, "text/plain", message);
-    Serial.println(message);
-
-    if (server.hasArg("ql"))
-    {
-        int ql = server.arg("ql").toInt();
-        cam.myCAM.OV2640_set_JPEG_size(ql);
-        Serial.println("QL change to: " + server.arg("ql"));
-    }
-}
-
-void handlePumpOn() {
-  pump.pumpOn();
-  server.send(200, "text/plain", "PUMP ON");
-  Serial.println("Pump ON");
-}
-
-void handlePumpOff() {
-  pump.pumpOff();
-  server.send(200, "text/plain", "PUMP OFF");
-  Serial.println("Pump OFF");
-}
-
-void handleBulbOn() {
-  bulb.bulbOn();
-  server.send(200, "text/plain", "BULB ON");
-  Serial.println("Bulb ON");
-}
-
-void handleBulbOff() {
-  bulb.bulbOff();
-  server.send(200, "text/plain", "BULB OFF");
-  Serial.println("Bulb OFF");
-}
-
-void handleGetStatus() {
-  String message = "STATUS REPORT\n\n";
-  message += "PUMP: ";
-  message += pump.getState() ? "ON":"OFF";
-  message += "\n";
-  message += "LAMP: ";
-  message += bulb.bulbState();
-  message += "\n";
-  server.send(200, "text/plain", message);
-}
-
 // --- SETUP ROUTINES ---
-void setupAP() {
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(AP_ssid, AP_password);
-  Serial.println(WiFi.softAPIP());
-}
 
 void setupWifi() {
   WiFi.mode(WIFI_STA);
@@ -254,6 +186,7 @@ void setupWifi() {
 void setup() {
   Serial.begin(115200); //for debugging if needed.
 
+  // Setup display
   tft.init();
   tft.setRotation(2);
   tft.setTextSize(1);
@@ -261,20 +194,8 @@ void setup() {
   tft.setTextColor(TFT_GREEN, TFT_BLACK); //set color of font to green foreground, black background
 
   // SETUP WIFI
-//  setupWifi();
-  setupAP();
+  setupWifi();
   setupSensor();
 
-  // SETUP SERVER
-  server.on("/pump/on", HTTP_GET, handlePumpOn);
-  server.on("/pump/off", HTTP_GET, handlePumpOff);
-  server.on("/bulb/on", HTTP_GET, handleBulbOn);
-  server.on("/bulb/off", HTTP_GET, handleBulbOff);
-  server.on("/status", HTTP_GET, handleGetStatus);
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial.println("Server started.");
-  
   primary_timer = millis();
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
 }

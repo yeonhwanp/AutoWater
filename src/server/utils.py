@@ -1,7 +1,8 @@
 import sqlite3 
 from datetime import datetime
 schedule_db = "__HOME__/schedule.db" # DB that holds the strings for the schedule
-sensors_db = "__HOME__/sensors.db" # DB that holds the readings from the sensors
+sensors_db = "__HOME__/sensors.db"   # DB that holds the readings from the sensors
+camera_db = "__HOME__/camera.db"     # DB that holds the camera photos
 
 def create_databases():
     """
@@ -24,6 +25,13 @@ def create_databases():
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
     c.execute("""CREATE TABLE IF NOT EXISTS readings (temperature real, humidity real, moisture real, time timestamp)""")
+    conn.commit()
+    conn.close()
+
+    # Create the camera photos database
+    conn = sqlite3.connect(camera_db)
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS addresses (ip text, time timestamp)""")
     conn.commit()
     conn.close()
 

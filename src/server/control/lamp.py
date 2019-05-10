@@ -27,6 +27,9 @@ def request_handler(request):
     else:
         return json.dumps({"intent": "FALSE"})
 
+    if schedule == "":
+        return json.dumps({"intent": "FALSE"})
+
     cur_seconds = seconds_since_midnight()
     for segment in schedule.split(","):
         start, end = map(int, segment.split(":"))

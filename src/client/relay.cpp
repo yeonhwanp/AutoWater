@@ -7,7 +7,7 @@ Bulb::Bulb(int pin) {
   pinMode(RELAY_PIN, OUTPUT);
 }
 
-bool Bulb::bulbState() {
+bool Bulb::getState() {
   return BULB_IS_ON;
 }
 

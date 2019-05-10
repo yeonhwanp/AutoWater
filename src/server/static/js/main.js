@@ -113,5 +113,14 @@ $(document).ready(function() {
       $("#pump-intent").text((data.intent == "TRUE") ? "ON" : "OFF")
     })
   }, 500)
+
+  // handle camera stream
+  $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/camera/read.py", function(data) {
+    if (data.success) {
+      $("#camera").html("<img src='http://" + data.address + "/stream' />")
+    } else {
+      $("#camera").html("<p>No camera source found...</p>")
+    }
+  })
   
 })

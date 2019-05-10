@@ -1,10 +1,11 @@
 #include "button.h"
 #include <Arduino.h>
 
-Button::Button(int p) {
+Button::Button(const int p) {
     flag = 0;
     state = 0;
     pin = p;
+    pinMode(p, INPUT_PULLUP);
     t_of_state_2 = millis();       //init
     t_of_button_change = millis(); //init
     debounce_time = 10;
