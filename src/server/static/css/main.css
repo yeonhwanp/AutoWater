@@ -20,3 +20,33 @@ th {
 td {
     text-align: right !important;
 }
+
+#temperature-container {
+    max-height: 400px;
+    height: 400px;
+}
+
+#humidity-container {
+    max-height: 400px;
+    height: 400px;
+}
+
+#moisture-container {
+    max-height: 400px;
+    height: 400px;
+}
+
+#pump-schedule-add {
+    display: block;
+    margin: auto;
+}
+
+#lamp-schedule-add {
+    display: block;
+    margin: auto;
+}
+
+.schedule-container {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

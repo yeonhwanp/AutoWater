@@ -4,7 +4,10 @@
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://weareoutman.github.io/clockpicker/dist/bootstrap-clockpicker.min.css">
   <title>Team 37: Control Center</title>
 
   <style>
@@ -22,20 +25,20 @@
     <div class="row">
       <div class="col-sm-6">
         <h3>Sensor Readings</h3>
-        <table class="table">
-          <tr>
-            <th>Temperature</th>
-            <td id="temperature-reading"></td>
-          </tr>
-          <tr>
-            <th>Humidity</th>
-            <td id="humidity-reading"></td>
-          </tr>
-          <tr>
-            <th>Soil Moisture</th>
-            <td id="moisture-reading"></td>
-          </tr>
-        </table>
+        <h6>Moisture</h6>
+        <div id="moisture-container" width="100%">
+          <canvas id="moisture-reading"></canvas>
+        </div>
+
+        <h6>Temperature</h6>
+        <div id="temperature-container" width="100%">
+          <canvas id="temperature-reading"></canvas>
+        </div>
+
+        <h6>Humidity</h6>
+        <div id="humidity-container" width="100%">
+          <canvas id="humidity-reading"></canvas>
+        </div>
 
         <h3>Camera</h3>
         <div id="camera">
@@ -103,11 +106,26 @@
               </div>
             </td>
           </tr>
-
-          <tr>
-
-          </tr>
         </table>
+
+        <h3>Settings</h3>
+        <div class="schedule-container">
+          <h6>Pump Schedule</h6>
+          <ul id="pump-schedule-list">
+
+
+          </ul>
+          <button type="button" id="pump-schedule-add" class="btn btn-outline-success">Add time</button>
+        </div>
+
+        <div class="schedule-container">
+          <h6>Lamp Schedule</h6>
+          <ul id="lamp-schedule-list">
+
+
+          </ul>
+          <button type="button" id="lamp-schedule-add" class="btn btn-outline-success">Add time</button>
+        </div>
       </div>
     </div>
   </div>

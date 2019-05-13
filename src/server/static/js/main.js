@@ -1,3 +1,7 @@
+var tempChart
+var moistureChart
+var humidityChart
+
 $(document).ready(function() {
   // setup all the button listener events
   $("#pump-on-btn").on("click", function() {
@@ -22,11 +26,11 @@ $(document).ready(function() {
   // get sensor readings
   setInterval(function() {
     $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/sensors/read.py", function(data) {
-      $("#temperature-reading").text(data.temp)
-      $("#humidity-reading").text(data.humid)
-      $("#moisture-reading").text(data.moist)
+      setData(tempChart, data.temps, "Temperature")
+      setData(moistureChart, data.moists, "Soil Moisture")
+      setData(humidityChart, data.humids, "Humidity")
     })
-  }, 500)
+  }, 3000)
 
   // get current state of pump
   setInterval(function() {
@@ -106,7 +110,6 @@ $(document).ready(function() {
     })
   }, 500)
 
-
   // handle intent for pump
   setInterval(function() {
     $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/pump.py", function(data) {
@@ -122,5 +125,75 @@ $(document).ready(function() {
       $("#camera").html("<p>No camera source found...</p>")
     }
   })
-  
+
+  function setData(chart, data, labelText) {
+    var newData = data.map((point) => {
+      return {
+        t: Date.parse(point.t),
+        y: point.y
+      }
+    })
+
+    chart.data.datasets = [{
+      label: labelText,
+      data: newData
+    }]
+
+    chart.update()
+  }
+
+  function setupChart(id) {
+    // setup charts
+    var ctx = $(id)
+    ctx.height = 300
+    var chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        datasets: [{
+          data: []
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            type: "time",
+            distribution: "linear"
+          }],
+          yAxes: [{
+            ticks: {
+              max: 100,
+              min: 0,
+              stepSize: 10
+            }
+          }]
+        },
+        animation: {
+          duration: 0
+        },
+        maintainAspectRatio: false,
+      }
+    })
+
+    return chart
+  }
+
+  function newScheduleItem() {
+
+  }
+
+
+
+  function updateSchedule() {
+
+  }
+
+  tempChart = setupChart("#temperature-reading")
+  moistureChart = setupChart("#moisture-reading")
+  humidityChart = setupChart("#humidity-reading")
+
+  $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/sensors/read.py", function(data) {
+    setData(tempChart, data.temps, "Temperature")
+    setData(moistureChart, data.moists, "Soil Moisture")
+    setData(humidityChart, data.humids, "Humidity")
+  })
 })
