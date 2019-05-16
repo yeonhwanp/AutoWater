@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta
 schedule_db = "__HOME__/schedule.db" # DB that holds the strings for the schedule
 sensors_db = "__HOME__/sensors.db"   # DB that holds the readings from the sensors
-camera_db = "__HOME__/camera.db"     # DB that holds the camera photos
+camera_db = "__HOME__/camera.db"     # DB that holds the camera ip addresses
 
 def create_databases():
     """
