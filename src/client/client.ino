@@ -12,6 +12,8 @@
 TFT_eSPI tft = TFT_eSPI();
 const int SCREEN_HEIGHT = 160;
 const int SCREEN_WIDTH = 128;
+const int LED_pin = 13;
+
 
 unsigned long primary_timer;
 const int LOOP_PERIOD = 50;
@@ -21,7 +23,7 @@ unsigned long sensor_reading_timer;
 unsigned long display_timer;
 const int EFFECTOR_UPDATE_PERIOD = 1000; // 1000ms
 const int SENSOR_UPDATE_PERIOD = 1000;
-const int DISPLAY_TIME = 10000;
+const int DISPLAY_TIME = 3000;
 
 // Setup Camera
 Camera cam;
@@ -35,8 +37,9 @@ const int BULB_PIN = 14;
 Bulb bulb(BULB_PIN);
 
 // Setup WIFI
-const char *network = "6s08";
+//const char *network = "6s08";
 const char *password = "iesc6s08";
+const char *network = "MIT";
 
 // Setup requests
 // Some constants and some resources:
@@ -114,13 +117,6 @@ void loop() {
   tft.print("IP: ");
   tft.println(WiFi.localIP());
 
-  tft.print("Pump status:");
-  if (pump.getState()) {
-    tft.println("ON ");
-  } else {
-    tft.println("OFF");
-  }
-
   // Determine if pump should be on
   if (millis() - effector_update_timer > EFFECTOR_UPDATE_PERIOD) {
     setPumpDesiredState();
@@ -129,12 +125,46 @@ void loop() {
     effector_update_timer = millis();
   }
 
+  tft.print("Pump status:");
+  if (pump.getState()) {
+    tft.println("ON ");
+  } else {
+    tft.println("OFF");
+  }
+  
+  tft.print("Lamp status:");
+  if (bulb.getState()) {
+    tft.println("ON ");
+  } else {
+    tft.println("OFF");
+  }
+
   if (millis() - sensor_reading_timer > SENSOR_UPDATE_PERIOD) {
     int moistPercent = getMoistPercent();
     float temp = getTemp();
     float humidity = getHumidity();
     setReadings(moistPercent, temp, humidity);
     sensor_reading_timer = millis();
+    tft.print("Temperature: ");
+    tft.println(temp);
+    tft.print("Humidity: ");
+    tft.println(humidity);
+    tft.print("Soil Moisture: ");
+    tft.println(moistPercent);
+  }
+
+
+
+  if (button.update() == 2) { //check if button had long press
+    display_timer = millis();
+  }
+  
+  // turns the display on or off depending on the button state
+  pinMode(LED_pin, OUTPUT);
+  if (millis() - display_timer < DISPLAY_TIME) {
+    digitalWrite(LED_pin,HIGH); //Screen turns on
+  } else {
+    digitalWrite(LED_pin,LOW); //Screen turns off
   }
   
   // Consistent ticks
@@ -142,23 +172,15 @@ void loop() {
   primary_timer = millis();
 
   // Reset screen on time
-  if (button.update() == 1) {
-    display_timer = millis();
-  }
 
-  // keep display on
-  if (millis() - display_timer > DISPLAY_TIME) {
-    tft.println("on");
-  } else {
-    tft.println("off");
-  }
 }
 
 // --- SETUP ROUTINES ---
 
 void setupWifi() {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(network, password); //attempt to connect to wifi
+  //WiFi.begin(network, password); //attempt to connect to wifi
+  WiFi.begin(network); //attempt to connect to wifi
   uint8_t count = 0; //count used for Wifi check times
   Serial.print("Attempting to connect to ");
   Serial.println(network);

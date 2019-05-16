@@ -26,8 +26,8 @@ const int CAM_POWER_ON = 10;
 
 ArduCAM myCAM(OV2640, CS);
 
-const char *ssid = "MIT"; // Put your SSID here
-const char *password = ""; // Put your PASSWORD here
+const char *ssid = "6s08"; // Put your SSID here
+const char *password = "iesc6s08"; // Put your PASSWORD here
 
 static const size_t bufferSize = 2048;
 static uint8_t buffer[bufferSize] = {0xFF};
