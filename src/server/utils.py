@@ -18,6 +18,7 @@ def create_databases():
     c.execute("""CREATE TABLE IF NOT EXISTS lamp_override (lamp_on boolean, lamp_off boolean, update_time timestamp);""")
     c.execute("""CREATE TABLE IF NOT EXISTS pump_status (is_on boolean, update_time timestamp);""")
     c.execute("""CREATE TABLE IF NOT EXISTS lamp_status (is_on boolean, update_time timestamp);""")
+    c.execute("""CREATE TABLE IF NOT EXISTS update_frequency (freq real, update_time timestamp);""")
     conn.commit()
     conn.close()
 

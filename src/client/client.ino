@@ -21,8 +21,9 @@ const int LOOP_PERIOD = 50;
 unsigned long effector_update_timer;
 unsigned long sensor_reading_timer;
 unsigned long display_timer;
-const int EFFECTOR_UPDATE_PERIOD = 1000; // 1000ms
-const int SENSOR_UPDATE_PERIOD = 1000;
+
+int EFFECTOR_UPDATE_PERIOD = 1000; // 1000ms
+int SENSOR_UPDATE_PERIOD = 1000;
 const int DISPLAY_TIME = 3000;
 
 // Setup Camera
@@ -86,6 +87,22 @@ void setPumpDesiredState() {
   }
 }
 
+void setUpdateFrequency() {
+  char request_buffer[200];
+  sprintf(request_buffer, "GET /sandbox/sc/mattfeng/finalproject/server/power/read.py HTTP/1.1\r\n");
+  strcat(request_buffer, "Host: 608dev.net");
+  strcat(request_buffer, "\r\n");
+  strcat(request_buffer, "\r\n");
+  do_http_request("608dev.net", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
+
+  char new_freq_str[10] = {0};
+  char* freq = strstr(response, ": ");
+  strncpy(new_freq_str, freq + 2, 5);
+  Serial.println(new_freq_str);
+  EFFECTOR_UPDATE_PERIOD = atoi(new_freq_str);
+  SENSOR_UPDATE_PERIOD = atoi(new_freq_str);
+}
+
 void setReadings(int moist, float temp, float humidity) {
   char readings[200];
   sprintf(readings, "moisture=%i&temp=%f&humidity=%f", moist, temp, humidity);
@@ -143,6 +160,7 @@ void loop() {
     float temp = getTemp();
     float humidity = getHumidity();
     setReadings(moistPercent, temp, humidity);
+    setUpdateFrequency();
     sensor_reading_timer = millis();
     tft.print("Temperature: ");
     tft.println(temp);
