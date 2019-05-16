@@ -77,3 +77,15 @@ label {
 h6 {
     font-weight: 600 !important;
 }
+
+#camera-control {
+    text-align: center;
+}
+
+#camera-control button {
+    margin-top: 6px;
+}
+
+.hidden {
+    display: none;
+}

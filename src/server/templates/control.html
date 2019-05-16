@@ -51,7 +51,13 @@
         </div>
 
         <h3>Camera</h3>
-        <div id="camera">
+        <div id="camera-control">
+          <div id="camera">
+          </div>
+          <button id="camera-toggle" class="btn btn-outline-secondary">
+            <i class="fas fa-camera"></i>
+            Toggle camera
+          </button>
         </div>
       </div>
 
@@ -215,6 +221,15 @@
           <label>Maximum</label>
           <div class="input-group">
             <input id="moisture-max" type="number" min="0" max="100" class="form-control" value="100">
+          </div>
+
+        </div>
+
+        <div class="schedule-container">
+          <h6>Power management</h6>
+          <label>Update frequency (milliseconds)</label>
+          <div class="input-group">
+            <input id="update-frequency" type="number" min="1000" max="10000" class="form-control">
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ var LAMP_SCHEDULE_UPDATE_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproje
 var MOISTURE_MIN_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/min.py"
 var MOISTURE_MAX_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/max.py"
 var MOISTURE_BOUNDS_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/read.py"
+var UPDATE_FREQ_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/power/update.py"
 
 var pumpSchedule
 var lampSchedule
@@ -381,6 +382,7 @@ $(document).ready(function() {
     updateLampClient()
   })
 
+
   $("#moisture-min").on("blur", function() {
     $.post(MOISTURE_MIN_URL, {"value": $("#moisture-min").val()})
   })
@@ -394,4 +396,15 @@ $(document).ready(function() {
     $("#moisture-min").val(data.min)
   })
 
+  $("#camera-toggle").on("click", function() {
+    $("#camera").toggleClass("hidden")
+  })
+
+  $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/power/read.py", function(data) {
+    $("#update-frequency").val(data.freq)
+  })
+
+  $("#update-frequency").on("blur", function() {
+    $.post(UPDATE_FREQ_URL, {"freq": $("#update-frequency").val()})
+  })
 })
