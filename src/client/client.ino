@@ -35,8 +35,8 @@ const int BULB_PIN = 14;
 Bulb bulb(BULB_PIN);
 
 // Setup WIFI
-const char *network = "6s08";
-const char *password = "iesc6s08";
+const char *network = "MIT";
+const char *password = "";
 
 // Setup requests
 // Some constants and some resources:

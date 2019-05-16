@@ -17,6 +17,9 @@ def request_handler(request):
     else:
         return json.dumps({"schedule":[]})
 
+    if schedule == "":
+        return json.dumps({"schedule": []})
+
     segments = []
     for segment in schedule.split(","):
         start, end = map(int, segment.split(":"))
