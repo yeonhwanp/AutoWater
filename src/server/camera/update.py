@@ -10,7 +10,7 @@ def request_handler(request):
     try:
         ip = request["form"]["ip"]
     except:
-        return "You must provide an ip"
+        return "You must provide an `ip`."
     
     conn = sqlite3.connect(camera_db)
     c = conn.cursor()
