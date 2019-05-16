@@ -161,8 +161,10 @@ $(document).ready(function() {
 
   function setData(chart, data, labelText, bg, fg) {
     var newData = data.map((point) => {
+      let newTime = new Date(point.t)
+      newTime.setHours(newTime.getHours() - 4) // timezone
       return {
-        t: Date.parse(point.t),
+        t: newTime,
         y: point.y
       }
     })
