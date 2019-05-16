@@ -9,6 +9,7 @@ sys.path.append("__HOME__/finalproject/server")
 from utils import seconds_since_midnight
 
 schedule_db = "__HOME__/schedule.db"
+sensors_db = "__HOME__/sensors.db"
 
 def request_handler(request):
     conn = sqlite3.connect(schedule_db)
@@ -20,6 +21,25 @@ def request_handler(request):
             return json.dumps({"intent": "TRUE"})
         if off and not on:
             return json.dumps({"intent": "FALSE"})
+    
+    conn_sensors = sqlite3.connect(sensors_db)
+    c_sensors = conn_sensors.cursor()
+    # get the latest sensor reading
+    last_reading = c_sensors.execute("""SELECT * FROM readings ORDER BY time DESC LIMIT 1""").fetchall()
+    if len(last_reading) != 0:
+        _, _, moisture, _ = last_reading[0]
+        # get the moisture bounds
+        moisture_min = c_sensors.execute("""SELECT * FROM moisture_min ORDER BY time DESC LIMIT 1""").fetchall()
+        if len(moisture_min) != 0:
+            moisture_min, _ = moisture_min[0]
+            if moisture < moisture_min:
+                return json.dumps({"intent": "TRUE"})
+
+        moisture_max = c_sensors.execute("""SELECT * FROM moisture_max ORDER BY time DESC LIMIT 1""").fetchall()
+        if len(moisture_max) != 0:
+            moisture_max, _ = moisture_max[0]
+            if moisture > moisture_max:
+                return json.dumps({"intent": "FALSE"})
 
     schedules = c.execute("""SELECT * FROM pump_schedule ORDER BY update_time DESC LIMIT 1""").fetchall()
     if len(schedules) != 0:

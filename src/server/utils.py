@@ -1,5 +1,5 @@
 import sqlite3 
-from datetime import datetime
+from datetime import datetime, timedelta
 schedule_db = "__HOME__/schedule.db" # DB that holds the strings for the schedule
 sensors_db = "__HOME__/sensors.db"   # DB that holds the readings from the sensors
 camera_db = "__HOME__/camera.db"     # DB that holds the camera photos
@@ -25,6 +25,8 @@ def create_databases():
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
     c.execute("""CREATE TABLE IF NOT EXISTS readings (temperature real, humidity real, moisture real, time timestamp)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS moisture_min (moisture real, time timestamp)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS moisture_max (moisture real, time timestamp)""")
     conn.commit()
     conn.close()
 
@@ -36,7 +38,7 @@ def create_databases():
     conn.close()
 
 def seconds_since_midnight():
-    now = datetime.now()
+    now = datetime.now() - timedelta(hours=4)
     seconds_since = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
     return seconds_since
 
