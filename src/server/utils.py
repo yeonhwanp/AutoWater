@@ -25,6 +25,8 @@ def create_databases():
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
     c.execute("""CREATE TABLE IF NOT EXISTS readings (temperature real, humidity real, moisture real, time timestamp)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS moisture_min (moisture real, time timestamp)""")
+    c.execute("""CREATE TABLE IF NOT EXISTS moisture_max (moisture real, time timestamp)""")
     conn.commit()
     conn.close()
 

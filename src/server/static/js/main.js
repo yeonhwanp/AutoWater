@@ -9,6 +9,9 @@ var HUMIDITY_FG_COLOR = "#5FB49C"
 var HUMIDITY_BG_COLOR = "#5FB49C10"
 var PUMP_SCHEDULE_UPDATE_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/schedule/update/pump.py"
 var LAMP_SCHEDULE_UPDATE_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/schedule/update/lamp.py"
+var MOISTURE_MIN_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/min.py"
+var MOISTURE_MAX_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/max.py"
+var MOISTURE_BOUNDS_URL = "http://608dev.net/sandbox/sc/mattfeng/finalproject/server/control/override/moisture/read.py"
 
 var pumpSchedule
 var lampSchedule
@@ -376,6 +379,19 @@ $(document).ready(function() {
   $.getJSON("http://608dev.net/sandbox/sc/mattfeng/finalproject/server/schedule/lamp.py", function(data) {
     lampSchedule = data.schedule
     updateLampClient()
+  })
+
+  $("#moisture-min").on("blur", function() {
+    $.post(MOISTURE_MIN_URL, {"value": $("#moisture-min").val()})
+  })
+
+  $("#moisture-max").on("blur", function() {
+    $.post(MOISTURE_MAX_URL, {"value": $("#moisture-max").val()})
+  })
+
+  $.getJSON(MOISTURE_BOUNDS_URL, function(data) {
+    $("#moisture-max").val(data.max)
+    $("#moisture-min").val(data.min)
   })
 
 })

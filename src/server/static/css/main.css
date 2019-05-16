@@ -73,3 +73,7 @@ label {
     justify-content: space-between;
     padding-bottom: 5px;
 }
+
+h6 {
+    font-weight: 600 !important;
+}
