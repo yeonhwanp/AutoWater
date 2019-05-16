@@ -10,7 +10,7 @@ def request_handler(request):
     conn = sqlite3.connect(sensors_db)
     c = conn.cursor()
     one_day_ago = datetime.now() - timedelta(days=1)
-    readings = c.execute("""SELECT * FROM readings WHERE time > ? ORDER BY time DESC LIMIT 1000""", (one_day_ago, )).fetchall()
+    readings = c.execute("""SELECT * FROM readings WHERE time > ? ORDER BY time DESC LIMIT 100""", (one_day_ago, )).fetchall()
     conn.close()
 
     temps = [{"t": reading[3], "y": reading[0]} for reading in readings]
