@@ -7,11 +7,19 @@ Bring virtual robots to life in a mixed reality enviornment using gestures!
 - Utilize the MagicLeap's visual technology to extract image and mesh data from the real world and optimize goals for virtual robots given high-level constraints.
 
 ## Dependencies
-<b>Built with</b>
-- [Unity](https://unity.com)
-- [MagicLeap](https://magicleap.com)
-- [LeapMotion](https://leapmotion.com)
-- [.NET 3.5](https://www.microsoft.com/en-us/download/details.aspx?id=21)
+
+### Hardware
+- [Two ESP32 Development Boards] (https://www.adafruit.com/product/3269)
+- [Any TFT Display] (https://www.adafruit.com/product/358)
+- [Adafruit STEMMA Soil Sensor] (https://www.adafruit.com/product/4026)
+- [Adafruit Si7021 Temperature and Humidity Sensor Breakout Board] (https://www.adafruit.com/product/3251)
+- [Peristaltic Liquid Pump] (https://www.adafruit.com/product/1150)
+- [ArduCam] (https://www.arducam.com/)
+
+### Software
+- [Arduino] (https://www.arduino.cc/)
+- [TFT Library] (https://www.arduino.cc/en/Reference/TFTLibrary)
+- [ESP32 Arduino Core] (https://github.com/espressif/arduino-esp32)
 
 ## Install
 1. Make sure you have the latest version of [Unity](https://unity3d.com/get-unity/update)
