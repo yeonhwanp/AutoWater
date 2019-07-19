@@ -9,17 +9,17 @@ Bring virtual robots to life in a mixed reality enviornment using gestures!
 ## Dependencies
 
 ### Hardware
-- [Two ESP32 Development Boards] (https://www.adafruit.com/product/3269)
-- [Any TFT Display] (https://www.adafruit.com/product/358)
-- [Adafruit STEMMA Soil Sensor] (https://www.adafruit.com/product/4026)
-- [Adafruit Si7021 Temperature and Humidity Sensor Breakout Board] (https://www.adafruit.com/product/3251)
-- [Peristaltic Liquid Pump] (https://www.adafruit.com/product/1150)
-- [ArduCam] (https://www.arducam.com/)
+- [Two ESP32 Development Boards](https://www.adafruit.com/product/3269)
+- [Any TFT Display](https://www.adafruit.com/product/358)
+- [Adafruit STEMMA Soil Sensor](https://www.adafruit.com/product/4026)
+- [Adafruit Si7021 Temperature and Humidity Sensor Breakout Board](https://www.adafruit.com/product/3251)
+- [Peristaltic Liquid Pump](https://www.adafruit.com/product/1150)
+- [ArduCam](https://www.arducam.com/)
 
 ### Software
-- [Arduino] (https://www.arduino.cc/)
-- [TFT Library] (https://www.arduino.cc/en/Reference/TFTLibrary)
-- [ESP32 Arduino Core] (https://github.com/espressif/arduino-esp32)
+- [Arduino](https://www.arduino.cc/)
+- [TFT Library](https://www.arduino.cc/en/Reference/TFTLibrary)
+- [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32)
 
 ## Install
 1. Make sure you have the latest version of [Unity](https://unity3d.com/get-unity/update)
