@@ -38,7 +38,7 @@ Water your plants anytime from anywhere around the world using an ESP32 and othe
 
 ## API
 
-### CAMERA
+### Camera
 
 `Camera.cpp`: The class used to setup + livestream images from the ESP
 - start_capture(): turns on the camera
@@ -47,7 +47,7 @@ Water your plants anytime from anywhere around the world using an ESP32 and othe
 - handleNotFound():
 - updateIP(): sends the new IP to the server such that the website can find the ESP
 
-### CLIENT
+### Client
 
 `Button.cpp`: Button class used previously.
 `Client.ino`: Main class used to interface with the ESP32 that holds the sensors. Calls methods to all of the other classes within the folder.
