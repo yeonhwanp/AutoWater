@@ -29,8 +29,8 @@ Water your plants anytime from anywhere around the world using an ESP32 and othe
 *NOTE:* Ignore all downloads as all necessary files are packaged within the repository.
 1. Make sure you have all of the latest hardware and software listed earlier in the dependencies section.
 2. Clone the project: `git clone git@github.com:yeonhwanp/autowater.git`
-3. Follow [this]() guide to set up all hardware dependencies. 
-4. Follow [this]() guide to set up all software dependencies.
+3. Follow [this](https://github.com/yeonhwanp/autowater/blob/master/docs/hardware.md) guide to set up all hardware dependencies. 
+4. Follow [this](https://github.com/yeonhwanp/autowater/blob/master/docs/software.md) guide to set up all software dependencies.
 
 ## Usage
 - *Client*: Open `/src/client/client.ino` in Arduino and compile it into the ESP32.
