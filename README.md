@@ -2,7 +2,7 @@
 
 Water your plants anytime from anywhere around the world using an ESP32 and other accessories.
 
-![Alt desc](https://github.com/yeonhwanp/autowater/blob/master/docs/Front.png)
+![](https://github.com/yeonhwanp/autowater/blob/master/docs/Front.png)
 
 ## Features
 - Water your plants wirelessly via a web interface.
