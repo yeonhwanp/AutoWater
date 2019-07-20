@@ -1,13 +1,13 @@
-#Software
+# Software
 
-## 1.1) Software on the ESP
+## Software on the ESP
 Download the starter code from the following links:
 1. [Code](https://drive.google.com/open?id=1ycZDQ5II_bTpF3VxJhD5JPJp1ixwjPtG) for ESP32 connected to camera.
 2. [Code](https://drive.google.com/open?id=1py7Ks53zTSZ2QU7lbmBKup8znGt8wMLM) for ESP32 control center (lamp, pump, POST and GET from server).
 
 Make sure to change the WiFi SSID and password to match the network you wish to connect to.
 
-## 1.2) Software on the server (`608dev.net`)
+## Software on the server (`608dev.net`)
 The server on `608dev.net` plays a central role in our device: it is the central hub that receives updates from the client (the ESP32) about the status of the pump and lamp, as well as the sensor readings. The server also determines the current control state for the pump and lamp, and relays that information back to the ESP32. Finally, `608dev.net` serves as a convenient web host for the Web UI, which acts as the control center from a user's perspective, allowing them the change the settings, schedule lamp and pump times, and check on the status of their plant.
 Since the server performs many functions, we will need to separate each function into its own file, with its own `request_handler`. To make this more manageable and easier to maintain in the future, it's recommended to use a folder hierarchy to organize and declare what each endpoint does (e.g. for endpoints that update values, place them in an `update/` folder, or name the endpoint `update.py`).
 The following is the folder structure that we have used in this project, as well as brief descriptions with what each endpoint or folder is used for.
