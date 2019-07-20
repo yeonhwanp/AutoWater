@@ -38,38 +38,38 @@ Water your plants anytime from anywhere around the world using an ESP32 and othe
 
 ## API
 
-**CAMERA**
+### CAMERA
 
-**Camera.cpp**: The class used to setup + livestream images from the ESP
+`Camera.cpp`: The class used to setup + livestream images from the ESP
 - start_capture(): turns on the camera
 - serverCapture(): wrapper method to handle repeated captures (continuously calling camCapture()).
 - serverStream(): sends a single picture
 - handleNotFound():
 - updateIP(): sends the new IP to the server such that the website can find the ESP
 
-**CLIENT**
+### CLIENT
 
-**Button.cpp**: Button class used previously.
-**Client.ino**: Main class used to interface with the ESP32 that holds the sensors. Calls methods to all of the other classes within the folder.
+`Button.cpp`: Button class used previously.
+`Client.ino`: Main class used to interface with the ESP32 that holds the sensors. Calls methods to all of the other classes within the folder.
 
 - setPumpDesiredState(): A method that sets the pump to its desired state by calling the 608dev server and seeing whether or not it should currenlty be on.
 - setReadings(): A method that sends the readings from the sensors to the 608dev server.
 - setCurrentStatus(): A method that sends the current status of the grow light and the pump to the server.
 - setupWifi(): setup the wifi connection
 
-**Pump.cpp**: Class used to represent the pump and the methods that it should have
+`Pump.cpp`: Class used to represent the pump and the methods that it should have
 
 - getState(): return the current state of the pump (on/off)
 - pumpOn(): turn on the pump
 - pumpOff(): turn off the pump
 
-**Relay.cpp**: Class used to represent the grow light and the methods that it should have
+`Relay.cpp`: Class used to represent the grow light and the methods that it should have
 
 - getState(): return the current state of the grow light (on/off)
 - bulbOn(): turn on the grow light
 - bulfOff(): turn off the grow light
 
-**Requests.cpp**: File developed from 6.08 exercises that handles http requests
+`Requests.cpp`: File developed from 6.08 exercises that handles http requests
 temp_soilsensor_tester.ino:
 
 - Imports the Adafruit sensor library specific to the Temperature/Humidity sensor that we bought from Adafruit
