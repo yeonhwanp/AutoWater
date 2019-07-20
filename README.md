@@ -1,4 +1,4 @@
-# AutoWater: MIT 6.08 Final Project
+# AutoWater: Automatic plant watering system!
 
 Water your plants anytime from anywhere around the world using an ESP32 and other accessories.
 
