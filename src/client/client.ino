@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <WiFi.h>
+#include "camera.h"
 #include "pump.h"
 #include "relay.h"
 #include "button.h"
@@ -25,6 +26,8 @@ int EFFECTOR_UPDATE_PERIOD = 1000; // 1000ms
 int SENSOR_UPDATE_PERIOD = 1000;
 const int DISPLAY_TIME = 3000;
 
+// Setup Camera
+Camera cam;
 
 // Setup Pump
 const int WATERPUMP_PIN = 12;
@@ -35,8 +38,8 @@ const int BULB_PIN = 14;
 Bulb bulb(BULB_PIN);
 
 // Setup WIFI
-const char *network = "6s08";
-const char *password = "iesc6s08";
+const char *network = "MIT";
+const char *password = "";
 
 // Setup requests
 // Some constants and some resources:
@@ -63,7 +66,7 @@ void setLampDesiredState() {
   do_http_request("608dev.net", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 
   if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
-    bulb.bulbOn();
+    bulb.bulbOn();    
   } else if (strstr(response, "FALSE") != NULL && strstr(response, "TRUE") == NULL) {
     bulb.bulbOff();
   }
@@ -78,7 +81,7 @@ void setPumpDesiredState() {
   do_http_request("608dev.net", request_buffer, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 
   if (strstr(response, "TRUE") != NULL && strstr(response, "FALSE") == NULL) {
-    pump.pumpOn();
+    pump.pumpOn();    
   } else if (strstr(response, "FALSE") != NULL && strstr(response, "TRUE") == NULL) {
     pump.pumpOff();
   }
@@ -94,22 +97,20 @@ void setUpdateFrequency() {
 
   char new_freq_str[10] = {0};
   char* freq = strstr(response, ": ");
-  if (freq != NULL) {
-    strncpy(new_freq_str, freq + 2, 5);
-    Serial.println(new_freq_str);
-    EFFECTOR_UPDATE_PERIOD = atoi(new_freq_str);
-    SENSOR_UPDATE_PERIOD = atoi(new_freq_str);
-  }
+  strncpy(new_freq_str, freq + 2, 5);
+  Serial.println(new_freq_str);
+  EFFECTOR_UPDATE_PERIOD = atoi(new_freq_str);
+  SENSOR_UPDATE_PERIOD = atoi(new_freq_str);
 }
 
 void setReadings(int moist, float temp, float humidity) {
   char readings[200];
   sprintf(readings, "moisture=%i&temp=%f&humidity=%f", moist, temp, humidity);
   char request[500];
-  sprintf(request, "POST /sandbox/sc/mattfeng/finalproject/server/sensors/update.py HTTP/1.1\r\n");
-  sprintf(request + strlen(request), "Host: 608dev.net\r\n");
-  strcat(request, "Content-Type: application/x-www-form-urlencoded\r\n");
-  sprintf(request + strlen(request), "Content-Length: %d\r\n\r\n", strlen(readings));
+  sprintf(request,"POST /sandbox/sc/mattfeng/finalproject/server/sensors/update.py HTTP/1.1\r\n");
+  sprintf(request + strlen(request),"Host: 608dev.net\r\n");
+  strcat(request,"Content-Type: application/x-www-form-urlencoded\r\n");
+  sprintf(request + strlen(request),"Content-Length: %d\r\n\r\n", strlen(readings));
   strcat(request, readings);
   do_http_request("608dev.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 }
@@ -118,10 +119,10 @@ void setCurrentStatus(bool pump, bool lamp) {
   char state[200];
   sprintf(state, "pump_status=%s&lamp_status=%s", pump ? "ON" : "OFF", lamp ? "ON" : "OFF");
   char request[500];
-  sprintf(request, "POST /sandbox/sc/mattfeng/finalproject/server/status/update.py HTTP/1.1\r\n");
-  sprintf(request + strlen(request), "Host: 608dev.net\r\n");
-  strcat(request, "Content-Type: application/x-www-form-urlencoded\r\n");
-  sprintf(request + strlen(request), "Content-Length: %d\r\n\r\n", strlen(state));
+  sprintf(request,"POST /sandbox/sc/mattfeng/finalproject/server/status/update.py HTTP/1.1\r\n");
+  sprintf(request + strlen(request),"Host: 608dev.net\r\n");
+  strcat(request,"Content-Type: application/x-www-form-urlencoded\r\n");
+  sprintf(request + strlen(request),"Content-Length: %d\r\n\r\n", strlen(state));
   strcat(request, state);
   do_http_request("608dev.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
 }
@@ -146,7 +147,7 @@ void loop() {
   } else {
     tft.println("OFF");
   }
-
+  
   tft.print("Lamp status:");
   if (bulb.getState()) {
     tft.println("ON ");
@@ -174,17 +175,17 @@ void loop() {
   if (button.update() == 2) { //check if button had long press
     display_timer = millis();
   }
-
+  
   // turns the display on or off depending on the button state
   pinMode(LED_pin, OUTPUT);
   if (millis() - display_timer < DISPLAY_TIME) {
-    digitalWrite(LED_pin, HIGH); //Screen turns on
+    digitalWrite(LED_pin,HIGH); //Screen turns on
   } else {
-    digitalWrite(LED_pin, LOW); //Screen turns off
+    digitalWrite(LED_pin,LOW); //Screen turns off
   }
-
+  
   // Consistent ticks
-  while (millis() - primary_timer < LOOP_PERIOD);
+  while (millis() - primary_timer < LOOP_PERIOD); 
   primary_timer = millis();
 
   // Reset screen on time
@@ -195,8 +196,8 @@ void loop() {
 
 void setupWifi() {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(network, password); //attempt to connect to wifi
-  //WiFi.begin(network); //attempt to connect to wifi
+  //WiFi.begin(network, password); //attempt to connect to wifi
+  WiFi.begin(network); //attempt to connect to wifi
   uint8_t count = 0; //count used for Wifi check times
   Serial.print("Attempting to connect to ");
   Serial.println(network);
@@ -206,7 +207,7 @@ void setupWifi() {
     count++;
   }
   delay(2000);
-
+  
   if (WiFi.isConnected()) { //if we connected then print our IP, Mac, and SSID we're on
     Serial.println("CONNECTED!");
     Serial.println(WiFi.localIP().toString() + " (" + WiFi.macAddress() + ") (" + WiFi.SSID() + ")");
